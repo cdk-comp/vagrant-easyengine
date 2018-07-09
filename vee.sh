@@ -8,7 +8,9 @@ echo "System update and packages cleanup"
 echo "=============================="
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
-sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get autoremove -y && sudo apt-get clean
+export DEBIAN_FRONTEND=noninteractive
+sudo echo grub-pc hold | dpkg --set-selections
+sudo apt-get -y update && sudo apt-get -y upgrade && sudo apt-get -y autoremove && sudo apt-get clean
 
 echo "=============================="
 echo "Install useful packages"
@@ -155,6 +157,8 @@ sudo chmod +x zio.sh
 echo "=============================="
 echo "copy keys from vagrant directory to www-data and root"
 echo "=============================="
+ssh-keyscan -H bitbucket.org >> /home/vagrant/.ssh/known_hosts
+ssh-keyscan -H github.com >> /home/vagrant/.ssh/known_hosts
 sudo cp -r /home/vagrant/.ssh /var/www/.ssh
 sudo chown -R www-data:www-data /var/www/.ssh
 
@@ -174,4 +178,5 @@ sudo chown www-data:www-data /var/www/.bash_profile
 echo "=============================="
 echo "Delete self and ee"
 echo "=============================="
+export DEBIAN_FRONTEND=newt
 cd /home/vagrant && sudo rm -rf ee && rm -- "$0"
