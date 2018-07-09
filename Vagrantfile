@@ -78,7 +78,7 @@ config.vm.box = settings["vm_box"]
   config.hostmanager.include_offline = true
 
   config.vm.define "project" do |node|
-    node.vm.hostname = settings['hostname'] ||= 'ee-vagrant'
+    node.vm.hostname = settings['hostname'] ||= 'vee'
     node.vm.network :private_network, ip: settings['ip'] ||= '192.168.100.100'
 
     node.hostmanager.aliases = [settings['aliases']]
@@ -124,11 +124,7 @@ config.vm.box = settings["vm_box"]
   if settings.include? 'folders'
     settings["folders"].each do |folder|
       if File.exists? File.expand_path(folder["map"])
-        if OS.windows?
-          config.vm.synced_folder folder["map"], folder["to"], type: "nfs", owner: "www-data", group: "www-data", disabled: false, create: true
-        else
           config.vm.synced_folder folder["map"], folder["to"], owner: "www-data", group: "www-data", disabled: false, create: true
-        end
       end
     end
   end
@@ -160,4 +156,17 @@ config.vm.box = settings["vm_box"]
   # EasyEngine and custom features
   config.vm.provision "file", source: "vee.sh", destination: "vee.sh"
   config.vm.provision "shell", inline: "source /home/vagrant/.bash_profile && sudo bash vee.sh"
+
+  # Create project from the config
+  if settings.include? 'vee_projects'
+    config.vm.provision "file", source: "vee-app.sh", destination: "vee-app.sh", run: "always"
+    settings["vee_projects"].each do |project|
+      if project["host"].to_s.length != 0
+        config.vm.provision "shell", run: "always" do |s|
+          s.inline = "$1$2 && $3$4 && $5$6 && bash /home/vagrant/vee-app.sh"
+          s.args   = ['export vee_app=', project["host"], 'export vee_repo=', project["repo"], 'export vee_type=', project["type"]]
+        end
+      end
+    end
+  end
 end
