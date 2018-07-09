@@ -1,0 +1,20 @@
+---
+ip: "192.168.13.39"
+memory: 2048
+cpus: 2
+hostname: vee
+vee_email: mail@mail.mail # for git and ee notification
+vee_user: YourUser # for git and ee notification
+vm_box: bento/ubuntu-18.04 # bento/ubuntu-18.04 or bento/ubuntu-16.04
+
+authorize: ~/.ssh/id_rsa.pub
+
+keys:
+  - ~/.ssh/id_rsa
+
+folders:
+  - map: /Users/username/vee/apps
+    to: /var/www
+
+aliases:
+  - 0.test
