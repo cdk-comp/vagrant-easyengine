@@ -18,3 +18,9 @@ folders:
 
 aliases:
   - 0.test
+  - bedrock.test
+  
+vee_projects:
+  - host: bedrock.test
+    repo: git@github.com:roots/bedrock.git
+    type: bedrock
