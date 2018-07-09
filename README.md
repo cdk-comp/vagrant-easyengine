@@ -83,6 +83,7 @@ $ ssh www-data@vee
 
 TODO
 ==========
+- [ ] Add php72 switch to the readme
 - [ ] Admin app - for custom app installation/removing
 - [ ] Make app with git repo on install and another features by wizard
 - [X] SSH access to www-data:www-data after EasyEngine installation
