@@ -39,18 +39,15 @@ config.vm.box = settings["vm_box"]
 
   if !Vagrant.has_plugin?('vagrant-cachier')
     puts "The vagrant-cachier plugin is required. Please install it with \"vagrant plugin install vagrant-cachier\""
-    exit
   end
 
   if !Vagrant.has_plugin?('vagrant-hostmanager')
     puts "The vagrant-hostmanager plugin is required. Please install it with \"vagrant plugin install vagrant-hostmanager\""
-    exit
   end
 
   if OS.windows?
     if !Vagrant.has_plugin?('vagrant-winnfsd')
       puts "The vagrant-winnfsd plugin is required. Please install it with \"vagrant plugin install vagrant-winnfsd\""
-      exit
     end
   end
 
