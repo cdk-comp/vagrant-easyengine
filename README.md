@@ -115,6 +115,9 @@ include common/locations-php72.conf;
 
 TODO
 ==========
+- [ ] auto install wp-cli
+- [ ] cdkrock autoinstall support 
+- [ ] movefile auto init
 - [X] Add php72 switch to the readme
 - [ ] Admin app - for custom app installation/removing
 - [ ] Make app with git repo on install and another features by wizard
