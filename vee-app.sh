@@ -43,7 +43,7 @@ env_init () {
 
     echo "WP_ENV=development" >> $vee_tmp/.env
     echo "WP_HOME=http://$vee_app" >> $vee_tmp/.env
-    echo "WP_SITEURL=${WP_HOME}/wp" >> $vee_tmp/.env
+    echo "WP_SITEURL=\${WP_HOME}/wp" >> $vee_tmp/.env
 
     echo "" >> $vee_tmp/.env
 
