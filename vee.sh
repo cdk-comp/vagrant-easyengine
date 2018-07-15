@@ -15,7 +15,7 @@ sudo apt-get -y update && sudo apt-get -y upgrade && sudo apt-get -y autoremove 
 echo "=============================="
 echo "Install useful packages"
 echo "=============================="
-sudo apt install haveged curl git unzip zip htop nload nmon ntp -y
+sudo apt install haveged curl git unzip zip htop nload nmon ntp bash-completion -y
 
 echo "=============================="
 echo "You can replace $vee_user with your username & $vee_email by your email in vee-config.yml"
@@ -39,11 +39,6 @@ sudo mv /home/vagrant/index.php /var/www/0.test/htdocs
 sudo echo -e "[user]\n\tname = $vee_user\n\temail = $vee_email" > /home/vagrant/.gitconfig
 sudo cp /home/vagrant/.gitconfig /var/www
 sudo chown www-data:www-data /var/www/.gitconfig
-
-echo "=============================="
-echo "enable ee bash_completion"
-echo "=============================="
-echo "source /etc/bash_completion.d/ee_auto.rc" >> /home/vagrant/.bashrc
 
 echo "=============================="
 echo "Install Composer - Fix phpmyadmin install issue"
@@ -122,8 +117,14 @@ echo "=============================="
 wget https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh -O- | sh
 
 echo "=============================="
-echo "wp cli - add bash-completion for user www-data"
+echo "wp cli - ianstall and add bash-completion for user www-data"
 echo "=============================="
+# wp-cli install
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+php wp-cli.phar --info
+chmod +x wp-cli.phar
+sudo mv wp-cli.phar /usr/local/bin/wp
+wp --info
 # download wp-cli bash_completion
 sudo wget -O /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/master/utils/wp-completion.bash
 # change /var/www owner
@@ -131,9 +132,18 @@ sudo chown www-data:www-data /var/www
 # download .profile & .bashrc for www-data
 sudo wget -O /var/www/.profile https://raw.githubusercontent.com/VirtuBox/ubuntu-nginx-web-server/master/docs/files/var/www/.profile
 sudo wget -O /var/www/.bashrc https://raw.githubusercontent.com/VirtuBox/ubuntu-nginx-web-server/master/docs/files/var/www/.bashrc
+
+
+echo "=============================="
+echo "LC_ALL fix for UTF-8"
+echo "=============================="
+sudo echo "export LC_ALL=en_US.UTF-8" >> /var/www/.profile
+sudo echo "export LANG=en_US.UTF-8" >> /var/www/.profile
+
 # set owner
 sudo chown www-data:www-data /var/www/.profile
 sudo chown www-data:www-data /var/www/.bashrc
+
 
 echo "=============================="
 echo "Downloading: adminer installer - adminer.sh"
@@ -161,19 +171,6 @@ ssh-keyscan -H bitbucket.org >> /home/vagrant/.ssh/known_hosts
 ssh-keyscan -H github.com >> /home/vagrant/.ssh/known_hosts
 sudo cp -r /home/vagrant/.ssh /var/www/.ssh
 sudo chown -R www-data:www-data /var/www/.ssh
-
-echo "=============================="
-echo "LC_ALL fix for UTF-8"
-echo "=============================="
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
-sudo touch ~/.profile
-sudo echo "export LC_ALL=en_US.UTF-8" > /home/vagrant/.profile
-sudo echo "export LANG=en_US.UTF-8" >> /home/vagrant/.profile
-sudo mv /home/vagrant/.profile /var/www
-sudo chown www-data:www-data /var/www/.profile
-sudo cp /home/vagrant/.bash_profile /var/www
-sudo chown www-data:www-data /var/www/.bash_profile
 
 echo "=============================="
 echo "Delete self and ee"
