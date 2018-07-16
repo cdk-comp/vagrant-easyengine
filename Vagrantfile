@@ -154,6 +154,9 @@ config.vm.box = settings["vm_box"]
   config.vm.provision "file", source: "vee.sh", destination: "vee.sh"
   config.vm.provision "shell", inline: "source /home/vagrant/.bash_profile && sudo bash vee.sh"
 
+  # Nginx helper. TODO: fix easyengine nginx start service
+  config.vm.provision "shell", inline: "sudo service nginx start", run: "always"
+
   # Create project from the config
   if settings.include? 'vee_projects'
     config.vm.provision "file", source: "vee-app.sh", destination: "vee-app.sh", run: "always"
