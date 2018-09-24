@@ -1,0 +1,27 @@
+# Configuration for vagrant-easyengine
+#
+# Author: Dima Minka
+# URL: https://github.com/cdk-comp/vagrant-easyengine
+#
+# File Version: 1.2.2
+
+ip: "192.168.13.100"
+memory: 1024
+cpus: 1
+hostname: vagrant-easyengine
+provider: parallels # parallels or virtualbox
+vagrant_email: vagrant@easyengine.test # for git and ee notification
+vagrant_user: VagrantEasyengine # for git and ee notification
+vm_box: cdk-comp/vagrant-easyengine
+
+authorize: ~/.ssh/id_rsa.pub
+
+keys:
+  - ~/.ssh/id_rsa
+
+aliases:
+  - example.test
+
+folders:
+  - map: /vagrant-easyengine/apps
+    to: /home/vagrant/apps
