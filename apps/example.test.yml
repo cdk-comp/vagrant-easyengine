@@ -1,0 +1,118 @@
+# Configuration for WPDistillery/vagrant-easyengine executed by vagrant_up.sh
+#
+# Author: Flurin Dürst
+# URL: https://wpdistillery.org
+# Author: Dima Minka
+# URL: https://cdk.co.il
+#
+# For detailed instructions on this file read the config.yml-documentation at
+# https://wpdistillery.org/documentation/config-yml-documentation/
+#
+# File Version: 1.1.2
+
+
+# Easyengine settings
+#################################################################
+
+# Easyengine config delete/enable/disable/create
+ee_site_config: create
+
+# Easyengine add --wp flag
+ee_app_wp: true
+
+# Easyengine change default public directory, default 'htdocs'
+ee_app_public: ""
+
+
+# INSTALLATION
+#################################################################
+
+# elementor, cdkrock, bedrock
+wpworkflow: ""
+
+# app repo
+app_repo: ""
+
+# language/timezone
+wplocale: en_US
+timezone: "Europe/London"
+
+# admin user settings optional
+admin:
+  user: ""
+  password: ""
+  email: ""
+  first_name: ""
+  last_name: ""
+
+# SETTINGS
+#################################################################
+
+wpsettings:
+  description: Example Description
+  permalink_structure: "/%postname%/"
+  thumbnail_width: 150
+  thumbnail_height: 150
+  medium_width: 300
+  medium_height: 300
+  large_width: 768
+  large_height: 768
+  blog_public: 0
+  # use page as frontpage
+  page_on_front: true
+  # define frontpage name (requires `page_on_front: true`)
+  frontpage_name: Homepage
+  # automatic conversion of smilies
+  convert_smilies: false
+  # Comments and pingback setup
+  default_pingback_flag: 0
+  default_ping_status: 0
+  default_comment_status: 0
+  comment_registration: 1
+  comment_moderation: 1
+  # Time and date format
+  date_format: "d/m/Y"
+  time_format: "H:i"
+  uploads_use_yearmonth_folders: 0
+
+
+# THEMES
+#################################################################
+
+# install a custom theme via url, rename it and remove the default themes
+theme:
+  name: "twentyfifteen"
+  url: ""
+  rename: ""
+  remove:
+    - twentyfifteen
+    - twentysixteen
+    - twentyseventeen
+
+
+# PLUGINS
+#################################################################
+
+# plugins to install & activate
+plugins_active:
+#  - regenerate-thumbnails
+
+# plugins to install
+plugins_inactive:
+#development
+#  - query-monitor
+
+# vagrant-easyengine SETUP
+####################################################################
+# if you don't want the setup to run all tasks, set them to false
+
+setup:
+  ee: true
+  settings: true
+  theme: true
+  plugins: true
+  cleanup: true
+  # adjust what data you want to be deleted within the cleanup (requires `cleanup: true`)
+  comment: true
+  posts: true
+  files: true
