@@ -102,6 +102,10 @@ plugins_inactive:
 #development
 #  - query-monitor
 
+# plugins to install with composer require-dev, work for bedrock, skeleton and cdkrock
+plugins_require_dev:
+  - query-monitor
+
 # vagrant-easyengine SETUP
 ####################################################################
 # if you don't want the setup to run all tasks, set them to false

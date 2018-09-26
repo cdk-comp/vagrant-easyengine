@@ -124,7 +124,7 @@ function app_random () {
 
 # Change default public directory 'htdocs' to 'web'
 function ee_public_change () {
-  printf "${BLU}»»» Change default public directory 'htdocs' to $2 for $app_name${NC}\n"
+  printf "${BLU}»»» Change default public directory 'htdocs' to $CONF_ee_app_public for $app_name${NC}\n"
   sed -i -e "s/htdocs/$CONF_ee_app_public/g" "/etc/nginx/sites-available/$app_name"
   sudo service nginx reload
 }
@@ -303,19 +303,47 @@ function wp_plugins () {
   if $CONF_setup_plugins ; then
     printf "${BRN}[=== PLUGINS ===]${NC}\n"
     printf "${BLU}»»» removing WP default plugins${NC}\n"
-    wp plugin delete akismet --allow-root
-    wp plugin delete hello --allow-root
-    printf "${BLU}»»» adding active plugins${NC}\n"
-    for entry in "${CONF_plugins_active[@]}"
-    do
-      wp plugin install $entry --activate --allow-root
-    done
 
-    printf "${BLU}»»» adding inactive plugins${NC}\n"
-    for entry in "${CONF_plugins_inactive[@]}"
-    do
-      wp plugin install $entry --allow-root
-    done
+    if [ "$CONF_wpworkflow" == "bedrock" ] || [ ! -z "$CONF_app_repo" ]; then
+      printf "${BLU}»»» adding active plugins from wpackagist${NC}\n"
+      for entry in "${CONF_plugins_active[@]}"
+      do
+        composer require wpackagist-plugin/$entry
+        wp plugin activate $entry --allow-root
+      done
+
+      printf "${BLU}»»» adding inactive plugins from wpackagist${NC}\n"
+      for entry in "${CONF_plugins_inactive[@]}"
+      do
+        composer require wpackagist-plugin/$entry
+      done
+
+      printf "${BLU}»»» adding composer require-dev plugins from wpackagist${NC}\n"
+      for entry in "${CONF_plugins_require_dev[@]}"
+      do
+        composer require --dev wpackagist-plugin/$entry
+      done
+
+      printf "${BLU}»»» adding inactive plugins${NC}\n"
+      for entry in "${CONF_plugins_inactive[@]}"
+      do
+        wp plugin install $entry --allow-root
+      done
+    else
+      wp plugin delete akismet --allow-root
+      wp plugin delete hello --allow-root
+      printf "${BLU}»»» adding active plugins${NC}\n"
+      for entry in "${CONF_plugins_active[@]}"
+      do
+        wp plugin install $entry --activate --allow-root
+      done
+
+      printf "${BLU}»»» adding inactive plugins${NC}\n"
+      for entry in "${CONF_plugins_inactive[@]}"
+      do
+        wp plugin install $entry --allow-root
+      done
+    fi
   else
     printf "${BLU}>>> skipping Plugin installation...${NC}\n"
   fi
