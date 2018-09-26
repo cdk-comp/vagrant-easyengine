@@ -99,7 +99,7 @@ Vagrant.configure("2") do |config|
   # Copy The SSH Private Keys To The Box
   if settings.include? 'keys'
     if settings["keys"].to_s.length == 0
-      puts "Check your vagrant-conf.yaml file, you have no private key(s) specified."
+      puts "Check your vagrant-conf.yml file, you have no private key(s) specified."
       exit
     end
     settings["keys"].each do |key|
@@ -110,7 +110,7 @@ Vagrant.configure("2") do |config|
           s.args = [File.read(File.expand_path(key)), key.split('/').last]
         end
       else
-        puts "Check your vagrant-conf.yaml file, the path to your private key does not exist."
+        puts "Check your vagrant-conf.yml file, the path to your private key does not exist."
         exit
       end
     end
@@ -146,7 +146,7 @@ Vagrant.configure("2") do |config|
 
   # Configure The email
   if settings["vagrant_email"].to_s.length == 0
-    puts "Check your vagrant-conf.yaml file, you have no vagrant_email specified."
+    puts "Check your vagrant-conf.yml file, you have no vagrant_email specified."
     exit
   else
     config.vm.provision "shell" do |s|
@@ -157,7 +157,7 @@ Vagrant.configure("2") do |config|
 
   # Configure The user
   if settings["vagrant_user"].to_s.length == 0
-    puts "Check your vagrant-conf.yaml file, you have no vagrant_user specified."
+    puts "Check your vagrant-conf.yml file, you have no vagrant_user specified."
     exit
   else
     config.vm.provision "shell" do |s|
@@ -173,15 +173,17 @@ Vagrant.configure("2") do |config|
     run: "always", privileged: false
   end
 
-  config.vm.provision "shell", path: "provision/provision.sh"
-
-  # Run app create with custom configuration
-  if settings.include? 'aliases'
-    config.vm.provision "file", source: "provision/vagrant_up.sh", destination: "vagrant_up.sh", run: "always"
-    settings["aliases"].each do |host|
-      config.vm.provision "shell", run: "always" do |s|
-        s.inline = "sudo bash vagrant_up.sh $1"
-        s.args   = host
+  if settings["vm_box"] == "cdk-comp/vagrant-easyengine"
+    # Basic provison for new box
+    config.vm.provision "shell", path: "provision/provision.sh"
+    # Run app create with custom configuration
+    if settings.include? 'aliases'
+      config.vm.provision "file", source: "provision/vagrant_up.sh", destination: "vagrant_up.sh", run: "always"
+      settings["aliases"].each do |host|
+        config.vm.provision "shell", run: "always" do |s|
+          s.inline = "sudo bash vagrant_up.sh $1"
+          s.args   = host
+        end
       end
     end
   end
