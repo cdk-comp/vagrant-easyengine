@@ -59,6 +59,11 @@ function parse_yaml() {
     }' | sed 's/_=/+=/g'
 }
 
+# root user change
+noroot() {
+  sudo -EH -u "vagrant" "$@";
+}
+
 # App create
 function ee_app_create () {
   printf "${BRN}[=== CREATE $app_name APP ===]${NC}\n"
@@ -98,7 +103,7 @@ function ee_app_create () {
   fi
   # install custom workflow
   if [ "$CONF_wpworkflow" == "bedrock" ] || [ ! -z "$CONF_app_repo" ]; then
-    composer install
+    noroot composer install
     wp core install --url="$app_name" --title="$app_name" --admin_user="$vagrant_user" --admin_password="$vagrant_pass" --admin_email="$vagrant_email" --allow-root
   fi
 }
@@ -134,7 +139,30 @@ function project_pull () {
   printf "${BLU}»»» Git pull for $apps_path$app_name${NC}\n"
   sudo rm -rf $apps_path$app_name/*
   cd $apps_path$app_name && git init && git remote add origin $CONF_app_repo
-  sudo -u www-data -i git --git-dir=$apps_path$app_name/.git --work-tree=$apps_path$app_name pull --depth=1 origin master
+  noroot git --git-dir=$apps_path$app_name/.git --work-tree=$apps_path$app_name pull --depth=1 origin master
+}
+
+# Check for git repository and add to composer, else wpackagist
+function package_installer () {
+  package=$1
+  package_type=$2
+  activate=$3
+  dev=$4
+  re="^(https|git)(:\/\/|@)([^\/:]+)[\/:]([^\/:]+)\/(.+).git$"
+  if [[ $package =~ $re ]]; then
+    user=${BASH_REMATCH[4]}
+    repo=${BASH_REMATCH[5]}
+    noroot composer config repositories.$user/$repo '{"type":"package","package": {"name": "'$user/$repo'","version": "master","type": "wordpress-'$package_type'","source": {"url": "'$package'","type": "git","reference":"master"}}}'
+    noroot composer require $user/$repo:dev-master
+    if [ "$activate" == "activate" ]; then
+      wp plugin activate $repo --allow-root
+    fi
+  else
+    noroot composer require $dev wpackagist-$package_type/$package
+    if [ "$activate" == "activate" ]; then
+      wp plugin activate $package --allow-root
+    fi
+  fi
 }
 
 # ENV configuration file creation with actual project details
@@ -308,26 +336,19 @@ function wp_plugins () {
       printf "${BLU}»»» adding active plugins from wpackagist${NC}\n"
       for entry in "${CONF_plugins_active[@]}"
       do
-        composer require wpackagist-plugin/$entry
-        wp plugin activate $entry --allow-root
+        package_installer $entry plugin activate
       done
 
       printf "${BLU}»»» adding inactive plugins from wpackagist${NC}\n"
       for entry in "${CONF_plugins_inactive[@]}"
       do
-        composer require wpackagist-plugin/$entry
+        package_installer $entry plugin inactive
       done
 
       printf "${BLU}»»» adding composer require-dev plugins from wpackagist${NC}\n"
       for entry in "${CONF_plugins_require_dev[@]}"
       do
-        composer require --dev wpackagist-plugin/$entry
-      done
-
-      printf "${BLU}»»» adding inactive plugins${NC}\n"
-      for entry in "${CONF_plugins_inactive[@]}"
-      do
-        wp plugin install $entry --allow-root
+        package_installer $entry plugin inactive --dev
       done
     else
       wp plugin delete akismet --allow-root

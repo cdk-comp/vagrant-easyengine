@@ -49,7 +49,7 @@ admin:
 #################################################################
 
 wpsettings:
-  description: Example Description
+  description: Example description
   permalink_structure: "/%postname%/"
   thumbnail_width: 150
   thumbnail_height: 150
@@ -93,16 +93,15 @@ theme:
 # PLUGINS
 #################################################################
 
-# plugins to install & activate
+# plugins to install & activate, support git repo's, private and public
 plugins_active:
-#  - regenerate-thumbnails
+  - regenerate-thumbnails
 
-# plugins to install
+# plugins to install, support git repo's, private and public
 plugins_inactive:
-#development
-#  - query-monitor
+  - elementor
 
-# plugins to install with composer require-dev, work for bedrock, skeleton and cdkrock
+# plugins to install with composer require-dev, work for bedrock, skeleton and cdkrock, support git repo's, private and public
 plugins_require_dev:
   - query-monitor
 
