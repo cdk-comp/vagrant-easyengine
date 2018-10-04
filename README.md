@@ -122,6 +122,8 @@ TODO
 - [ ] movefile auto init
 - [ ] PHP 7.1/7.2 auto config on install
 - [ ] Script for fast project init: repo creation, staging creation and more (runcloud api)
+- [ ] Remove all .git directories if exist key
+- [ ] Make new repo on vagrant_up
 
 Change Log
 ==========
