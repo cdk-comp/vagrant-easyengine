@@ -49,14 +49,14 @@ admin:
 #################################################################
 
 wpsettings:
-  description: Example description
+  description: Example project
   permalink_structure: "/%postname%/"
   thumbnail_width: 150
   thumbnail_height: 150
-  medium_width: 300
-  medium_height: 300
-  large_width: 768
-  large_height: 768
+  medium_width: 0
+  medium_height: 0
+  large_width: 0
+  large_height: 0
   blog_public: 0
   # use page as frontpage
   page_on_front: true
@@ -79,15 +79,16 @@ wpsettings:
 # THEMES
 #################################################################
 
-# install a custom theme via url, rename it and remove the default themes
+# install a custom theme via url/repo, rename it and remove the default themes
 theme:
-  name: "twentyfifteen"
+  name: "twentyseventeen"
   url: ""
+  # you can run composer install on app creation: true/false
+  composer: false
   rename: ""
   remove:
     - twentyfifteen
     - twentysixteen
-    - twentyseventeen
 
 
 # PLUGINS
@@ -95,7 +96,7 @@ theme:
 
 # plugins to install & activate, support git repo's, private and public
 plugins_active:
-  - regenerate-thumbnails
+  - advanced-custom-fields
 
 # plugins to install, support git repo's, private and public
 plugins_inactive:

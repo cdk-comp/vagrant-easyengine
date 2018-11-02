@@ -82,7 +82,7 @@ function ee_app_create () {
     vagrant_email=$CONF_admin_email;
   fi
   if $CONF_ee_app_wp; then
-  printf "${BLU}»»» creating app and wordpress install...${NC}\n"
+    printf "${BLU}»»» creating app and wordpress install...${NC}\n"
     yes | ee site create $app_name --wp --email=$vagrant_email --user=$vagrant_user --pass=$vagrant_pass --php7
   else
     yes | ee site create $app_name --php7 --mysql
@@ -151,16 +151,21 @@ function package_installer () {
   re="^(https|git)(:\/\/|@)([^\/:]+)[\/:]([^\/:]+)\/(.+).git$"
   if [[ $package =~ $re ]]; then
     user=${BASH_REMATCH[4]}
-    repo=${BASH_REMATCH[5]}
+    repo=${BASH_REMATCH[5]} && export theme_dir_name=$repo
     noroot composer config repositories.$user/$repo '{"type":"package","package": {"name": "'$user/$repo'","version": "master","type": "wordpress-'$package_type'","source": {"url": "'$package'","type": "git","reference":"master"}}}'
     noroot composer require $user/$repo:dev-master
     if [ "$activate" == "activate" ]; then
-      wp plugin activate $repo --allow-root
+      wp $package_type activate $repo --allow-root
     fi
   else
-    noroot composer require $dev wpackagist-$package_type/$package
+    if [ "$package_type" == "theme" ]; then
+      printf "${BLU}»»» downloading $CONF_theme_name...${NC}\n"
+      wp theme install $CONF_theme_url --force --allow-root
+    else
+      noroot composer require $dev wpackagist-$package_type/$package
+    fi
     if [ "$activate" == "activate" ]; then
-      wp plugin activate $package --allow-root
+      wp $package_type activate $package --allow-root
     fi
   fi
 }
@@ -293,18 +298,33 @@ function wp_settings () {
 function wp_themes () {
   if $CONF_setup_theme ; then
     printf "${BRN}[=== CONFIGURE THEME ===]${NC}\n"
-    if [ ! -z "$CONF_theme_url" ]; then
-      printf "${BLU}»»» downloading $CONF_theme_name...${NC}\n"
+    if [ "$CONF_wpworkflow" == "bedrock" ] && [ ! -z "$CONF_theme_url" ]; then
+      package_installer $CONF_theme_url theme
+    elif [ ! -z "$CONF_theme_url" ]; then
       wp theme install $CONF_theme_url --force --allow-root
     fi
     printf "${BLU}»»» installing/activating $CONF_theme_name...${NC}\n"
     if [ ! -z "$CONF_theme_rename" ]; then
       # rename theme
       printf "${BLU}»»» renaming $CONF_theme_name to $CONF_theme_rename...${NC}\n"
-      mv wp-content/themes/$CONF_theme_name wp-content/themes/$CONF_theme_rename
+      mv $(wp theme path --allow-root)/$CONF_theme_name $(wp theme path --allow-root)/$CONF_theme_rename
       wp theme activate $CONF_theme_rename --allow-root
+      wp theme activate $CONF_theme_rename/resources --allow-root
     else
       wp theme activate $CONF_theme_name --allow-root
+      wp theme activate $CONF_theme_name/resources --allow-root
+    fi
+        # composer install
+    if $CONF_theme_composer ; then
+      if [ ! -z "$CONF_theme_rename" ]; then
+        cur_theme_name=$CONF_theme_rename
+      else
+        cur_theme_name=$CONF_theme_name
+      fi
+      printf "${BLU}»»» composer install for $cur_theme_name theme...${NC}\n"
+      cd $(wp theme path --allow-root)/$cur_theme_name
+      noroot composer install
+      cd $apps_path$app_name
     fi
     if [ ! -z "$CONF_theme_remove" ]; then
       printf "${BLU}»»» removing default themes...${NC}\n"
@@ -396,7 +416,7 @@ function wp_clean () {
 # EXECUTIVE SETUP
 ####################################################################################################
 
-printf "${BRN}========== VAGRANT-EASYENGINE UP SCRIPTS START ==========${NC}\n\n"
+printf "${BRN}========== VAGRANT-EASYENGINE UP SCRIPTS START - $app_name==========${NC}\n\n"
 
 # CHECK FOR ROOT-DIR
 if [ ! -d "apps" ]; then
@@ -432,4 +452,4 @@ else
 fi
 
 
-printf "${BRN}========== VAGRANT-EASYENGINE UP SCRIPTS FINISHED ==========${NC}\n"
+printf "${BRN}========== VAGRANT-EASYENGINE UP SCRIPTS FINISHED - $app_name==========${NC}\n"
