@@ -148,12 +148,33 @@ function package_installer () {
   package_type=$2
   activate=$3
   dev=$4
+  zip="^(https|git)(:\/\/|@)([^\/:]+)[\/:]([^\/:]+)\/([^\/:]+)\/([^\/:]+)\/(.+).zip$"
   re="^(https|git)(:\/\/|@)([^\/:]+)[\/:]([^\/:]+)\/(.+).git$"
-  if [[ $package =~ $re ]]; then
+  ver="([0-9\.]+)"
+
+  if [[ $package =~ $zip ]]; then
     user=${BASH_REMATCH[4]}
     repo=${BASH_REMATCH[5]} && export theme_dir_name=$repo
+
+    if [[ ${BASH_REMATCH[7]} =~ $ver ]]; then
+        package_ver=${BASH_REMATCH[1]}
+    else
+        package_ver="dev-master"
+    fi
+
+    noroot composer config repositories.$user/$repo '{"type":"package","package": {"name": "'$user/$repo'","version": "'$package_ver'","type": "wordpress-'$package_type'","dist": {"url": "'$package'","type": "zip"}}}'
+    noroot composer require $user/$repo:$package_ver
+
+    if [ "$activate" == "activate" ]; then
+      wp $package_type activate $repo --allow-root
+    fi
+  elif [[ $package =~ $re ]]; then
+    user=${BASH_REMATCH[4]}
+    repo=${BASH_REMATCH[5]} && export theme_dir_name=$repo
+
     noroot composer config repositories.$user/$repo '{"type":"package","package": {"name": "'$user/$repo'","version": "master","type": "wordpress-'$package_type'","source": {"url": "'$package'","type": "git","reference":"master"}}}'
     noroot composer require $user/$repo:dev-master
+
     if [ "$activate" == "activate" ]; then
       wp $package_type activate $repo --allow-root
     fi
@@ -164,6 +185,7 @@ function package_installer () {
     else
       noroot composer require $dev wpackagist-$package_type/$package
     fi
+
     if [ "$activate" == "activate" ]; then
       wp $package_type activate $package --allow-root
     fi
@@ -390,7 +412,7 @@ function wp_plugins () {
   fi
 }
 
-# CLEANUP±
+# CLEANUP
 function wp_clean () {
   if $CONF_setup_cleanup ; then
     printf "${BRN}[=== CLEANUP ===]${NC}\n"
@@ -410,6 +432,18 @@ function wp_clean () {
     fi
   else
     printf "${BLU}>>> skipping Cleanup...${NC}\n"
+  fi
+}
+
+# EXTRA SETUP
+function wp_extra () {
+  if $CONF_setup_extra ; then
+    if [ "$CONF_extra_elementor_pro_license" ] ; then
+      printf "${BLU}»»» activating Elementor Pro license:...${NC}\n"
+      wp elementor-pro license activate $CONF_extra_elementor_pro_license --allow-root
+    fi
+  else
+    printf "${BLU}>>> skipping Extra Setup...${NC}\n"
   fi
 }
 
@@ -440,6 +474,7 @@ if $CONF_setup_ee ; then
     wp_themes
     wp_plugins
     wp_clean
+    wp_extra
   fi
   if [ -d "$ee_apps_path$app_name" ] && [ "$CONF_ee_site_config" == "delete" ]; then
     ee_app_delete
@@ -450,6 +485,5 @@ if $CONF_setup_ee ; then
 else
   printf "${BLU}>>> skip app creation, check easyengine app setup...${NC}\n"
 fi
-
 
 printf "${BRN}========== VAGRANT-EASYENGINE UP SCRIPTS FINISHED - $app_name==========${NC}\n"
