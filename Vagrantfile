@@ -177,12 +177,14 @@ Vagrant.configure("2") do |config|
     # Basic provison for new box
     config.vm.provision "shell", path: "provision/provision.sh"
     # Run app create with custom configuration
-    if settings.include? 'aliases'
-      config.vm.provision "file", source: "provision/vagrant_up.sh", destination: "vagrant_up.sh", run: "always"
-      settings["aliases"].each do |host|
-        config.vm.provision "shell", run: "always" do |s|
-          s.inline = "sudo bash vagrant_up.sh $1"
-          s.args   = host
+    if settings["app_installer"] == true
+      if settings.include? 'aliases'
+        config.vm.provision "file", source: "provision/vagrant_up.sh", destination: "vagrant_up.sh", run: "always"
+        settings["aliases"].each do |host|
+          config.vm.provision "shell", run: "always" do |s|
+            s.inline = "sudo bash vagrant_up.sh $1"
+            s.args   = host
+          end
         end
       end
     end

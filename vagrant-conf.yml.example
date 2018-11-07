@@ -13,6 +13,7 @@ provider: parallels # parallels or virtualbox
 vagrant_email: vagrant@easyengine.test # for git and ee notification
 vagrant_user: VagrantEasyengine # for git and ee notification
 vm_box: cdk-comp/vagrant-easyengine
+app_installer: false # Run vagrant_up.sh for automatic app creating
 
 authorize: ~/.ssh/id_rsa.pub
 
